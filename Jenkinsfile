@@ -14,28 +14,30 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/dipeshagarwaaal/Personal-Blog.git'
             }
         }
-
-        stage('Install Dependencies & Build') {
+        stage('Build') {
             steps {
-                sh 'npm install'
-                sh 'npm run build'
+                bat 'npm install'
+                bat 'npm run build'
             }
         }
 
-        stage('Azure Login') {
+        stage('Deploy') {
             steps {
-                sh '''
-                    az login --service-principal -u $AZURE_CREDENTIALS_USR -p $AZURE_CREDENTIALS_PSW --tenant your-tenant-id
-                '''
+                withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS_ID)]) {
+                    bat "az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID"
+                    bat "powershell Compress-Archive -Path ./publish/* -DestinationPath ./publish.zip -Force"
+                    bat "az webapp deploy --resource-group $RESOURCE_GROUP --name $APP_SERVICE_NAME --src-path ./publish.zip --type zip"
+                }
             }
         }
+    }
 
-        stage('Deploy to Azure') {
-            steps {
-                sh '''
-                    az webapp deploy --resource-group $RESOURCE_GROUP --name $APP_NAME --src-path build
-                '''
-            }
+    post {
+        success {
+            echo 'Deployment Successful!'
+        }
+        failure {
+            echo 'Deployment Failed!'
         }
     }
 }
