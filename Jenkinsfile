@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/dipeshagarwaaal/Personal-Blog/Jenkinsfile.git'
+                git branch: 'main', url: 'https://github.com/dipeshagarwaaal/Personal-Blog.git'
             }
         }
          stage('Terraform Init') {
