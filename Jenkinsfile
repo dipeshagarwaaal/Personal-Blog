@@ -2,8 +2,8 @@ pipeline {
     agent any
     environment {
         AZURE_CREDENTIALS_ID = 'jenkins-pipeline-sp'
-        RESOURCE_GROUP = 'WebServiceResourceforReactProject'
-        APP_SERVICE_NAME = 'AgarwalReactWebAppfinal'
+        RESOURCE_GROUP = 'webservice'
+        APP_SERVICE_NAME = 'AgarwalReactWebApp'
         TF_WORKING_DIR='.'
     }
 
@@ -15,13 +15,19 @@ pipeline {
         }
          stage('Terraform Init') {
             steps {
-                withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS_ID)]) {
+                withCredentials([azureServicePrincipal(
+                    credentialsId: AZURE_CREDENTIALS_ID,
+                    subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+                    clientIdVariable: 'ARM_CLIENT_ID',
+                    clientSecretVariable: 'ARM_CLIENT_SECRET',
+                    tenantIdVariable: 'ARM_TENANT_ID'
+                )]) {
                     bat """
-                    echo "Checking Terraform Installation..."
-                    terraform -v
-                    echo "Navigating to Terraform Directory: $TF_WORKING_DIR"
-                    cd $TF_WORKING_DIR
-                    echo "Initializing Terraform..."
+                    
+                      
+
+                    echo "Navigating to Terraform Directory: %TF_WORKING_DIR%"
+                    cd %TF_WORKING_DIR%
                     terraform init
                     """
                 }
@@ -29,32 +35,46 @@ pipeline {
         }
 
         stage('Terraform Plan') {
-    steps {
-        withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS_ID)]) {
-            bat """
-            echo "Navigating to Terraform Directory: %TF_WORKING_DIR%"
-            cd %TF_WORKING_DIR%
-            terraform plan -out=tfplan
-            """
-        }
-    }
-}
+            steps {
+                withCredentials([azureServicePrincipal(
+                    credentialsId: AZURE_CREDENTIALS_ID,
+                    subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+                    clientIdVariable: 'ARM_CLIENT_ID',
+                    clientSecretVariable: 'ARM_CLIENT_SECRET',
+                    tenantIdVariable: 'ARM_TENANT_ID'
+                )]) {
+                    bat """
+                   
+                      
 
+                    echo "Navigating to Terraform Directory: %TF_WORKING_DIR%"
+                    cd %TF_WORKING_DIR%
+                    terraform plan -out=tfplan
+                    """
+                }
+            }
+        }
 
         stage('Terraform Apply') {
-    steps {
-        withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS_ID)]) {
-            bat """
-            echo "Navigating to Terraform Directory: %TF_WORKING_DIR%"
-            cd %TF_WORKING_DIR%
-            echo "Applying Terraform Plan..."
-            terraform apply -auto-approve tfplan
-            """
-        }
-    }
-}
+            steps {
+                withCredentials([azureServicePrincipal(
+                    credentialsId: AZURE_CREDENTIALS_ID,
+                    subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+                    clientIdVariable: 'ARM_CLIENT_ID',
+                    clientSecretVariable: 'ARM_CLIENT_SECRET',
+                    tenantIdVariable: 'ARM_TENANT_ID'
+                )]) {
+                    bat """
+                    
+                      
 
-    
+                    echo "Navigating to Terraform Directory: %TF_WORKING_DIR%"
+                    cd %TF_WORKING_DIR%
+                    terraform apply -auto-approve tfplan
+                    """
+                }
+            }
+        }
 
         stage('Build') {
             steps {
@@ -63,25 +83,38 @@ pipeline {
             }
         }
 
-       stage('Deploy') {
-    steps {
-        withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS_ID)]) {
-            bat """
-            powershell Compress-Archive -Path build/* -DestinationPath build.zip -Force
-            az webapp deploy --resource-group %RESOURCE_GROUP% --name %APP_SERVICE_NAME% --src-path build.zip --type zip
-            """
-        }
-    }
-}
+        stage('Deploy') {
+            steps {
+                withCredentials([azureServicePrincipal(
+                    credentialsId: AZURE_CREDENTIALS_ID,
+                    subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+                    clientIdVariable: 'ARM_CLIENT_ID',
+                    clientSecretVariable: 'ARM_CLIENT_SECRET',
+                    tenantIdVariable: 'ARM_TENANT_ID'
+                )]) {
+                    bat """
+                    
+                     
 
+                    powershell Compress-Archive -Path build/* -DestinationPath build.zip -Force
+
+                    az webapp deploy ^
+                      --resource-group %RESOURCE_GROUP% ^
+                      --name %APP_SERVICE_NAME% ^
+                      --src-path build.zip ^
+                      --type zip
+                    """
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo 'Deployment Successful!'
+            echo '✅ Deployment Successful!'
         }
         failure {
-            echo 'Deployment Failed!'
+            echo '❌ Deployment Failed!'
         }
     }
 }
