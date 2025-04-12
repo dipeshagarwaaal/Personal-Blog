@@ -28,7 +28,7 @@ resource "azurerm_service_plan" "Web_plan" {
   sku_name = "B1"
 
 }
-resource "azurerm_app_service" "web_app" {
+resource "azurerm_app_service" "web_app"{
   name                = "AgarwalReactWebAppfinal"
   location            = azurerm_resource_group.web_rg.location
   resource_group_name = azurerm_resource_group.web_rg.name
