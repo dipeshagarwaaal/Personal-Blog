@@ -15,7 +15,7 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "web_rg" {
-  name     = "webservice"
+  name     = "webservicefinal"
   location = "Central India"
 }
 
