@@ -3,7 +3,7 @@ pipeline {
     environment {
         AZURE_CREDENTIALS_ID = 'jenkins-pipeline-sp'
         RESOURCE_GROUP = 'WebServiceResourceforReactProject'
-        APP_SERVICE_NAME = 'AgarwalReactWebApp'
+        APP_SERVICE_NAME = 'AgarwalReactWebAppfinal'
         TF_WORKING_DIR='.'
     }
 
