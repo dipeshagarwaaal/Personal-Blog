@@ -20,7 +20,7 @@ resource "azurerm_resource_group" "web_rg" {
 }
 
 resource "azurerm_service_plan" "Web_plan" {
-  name                = "webPlan02"
+  name                = "webPlan102"
   location            = azurerm_resource_group.web_rg.location
   resource_group_name = azurerm_resource_group.web_rg.name
   os_type             = "Windows"
@@ -29,7 +29,7 @@ resource "azurerm_service_plan" "Web_plan" {
 
 }
 resource "azurerm_app_service" "web_app" {
-  name                = "AgarwalReactWebApp"
+  name                = "AgarwalReactWebAppfinal"
   location            = azurerm_resource_group.web_rg.location
   resource_group_name = azurerm_resource_group.web_rg.name
   app_service_plan_id = azurerm_service_plan.Web_plan.id
